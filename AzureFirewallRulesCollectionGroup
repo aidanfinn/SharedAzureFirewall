@@ -1,0 +1,108 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "firewallPolicyName": {
+      "defaultValue": "hub-firewallpolicy",
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+      "apiVersion": "2020-11-01",
+      "name": "[concat(parameters('firewallPolicyName'), '/workload3')]",
+      "location": "westeurope",
+      "properties": {
+        "priority": 3000,
+        "ruleCollections": [
+          {
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "action": {
+              "type": "Allow"
+            },
+            "rules": [
+              {
+                "ruleType": "NetworkRule",
+                "name": "AllowAllOut",
+                "ipProtocols": [
+                  "Any"
+                ],
+                "sourceAddresses": [
+                  "10.1.8.128/25"
+                ],
+                "sourceIpGroups": [],
+                "destinationAddresses": [
+                  "*"
+                ],
+                "destinationIpGroups": [],
+                "destinationFqdns": [],
+                "destinationPorts": [
+                  "*"
+                ]
+              },
+              {
+                "ruleType": "NetworkRule",
+                "name": "AllowAllInFromVdc",
+                "ipProtocols": [
+                  "Any"
+                ],
+                "sourceAddresses": [
+                  "10.1.0.0/16"
+                ],
+                "sourceIpGroups": [],
+                "destinationAddresses": [
+                  "10.1.8.128/25"
+                ],
+                "destinationIpGroups": [],
+                "destinationFqdns": [],
+                "destinationPorts": [
+                  "*"
+                ]
+              }
+            ],
+            "name": "network-allow-workload3",
+            "priority": 1000
+          },
+          {
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "action": {
+              "type": "Allow"
+            },
+            "rules": [
+              {
+                "ruleType": "ApplicationRule",
+                "name": "AllowAllOut",
+                "protocols": [
+                  {
+                    "protocolType": "Http",
+                    "port": 80
+                  },
+                  {
+                    "protocolType": "Https",
+                    "port": 443
+                  }
+                ],
+                "fqdnTags": [],
+                "webCategories": [],
+                "targetFqdns": [
+                  "*"
+                ],
+                "targetUrls": [],
+                "terminateTLS": false,
+                "sourceAddresses": [
+                  "10.1.8.128/25"
+                ],
+                "destinationAddresses": [],
+                "sourceIpGroups": []
+              }
+            ],
+            "name": "application-allow-workload3",
+            "priority": 2000
+          }
+        ]
+      }
+    }
+  ]
+}
