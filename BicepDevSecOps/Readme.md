@@ -1,3 +1,5 @@
+# Managing Azure Firewall With DevSecOps
+
 This set of files provides Bicep code to deploy a (legacy) hub and spoke (workload) architecture with Azure Firewall, managed through DevSecOps:
 
 - **hub.bicep**: Deploys a VNet-based (or legacy) hub with a VPN gateway, gateway subnet route table, Azure Firewall, Azure Firewall (Manager) Policy, and a "global" rules collection group. This is stored in the hub repo and deployed via pipeline to the hub subscription/resource group.
