@@ -1,0 +1,74 @@
+trigger:
+  batch: true
+  branches:
+    include: 
+    - 'master'
+  paths:
+   include:
+     - platform/*
+
+name: Deploy Spoke1
+
+variables:
+  vmImageName: 'ubuntu-latest'
+  hubSub: 'de1b9349-a302-4b0f-98fb-2e6adc5b2d68'
+  workloadSub: '6fd7f490-4be8-41e2-bbdc-7f52d1d7162c'
+  workloadResourceGroupName: 'spoke1'
+  workloadNetworkResourceGroupName: 'spoke1-network'
+  hubNetworkResourceGroupName: 'hub-network'
+  azureServiceConnection: 'spoke1'
+  location: 'westeurope'
+pool:
+  vmImage: $(vmImageName)
+
+steps:
+- task: AzureCLI@2
+  displayName: Create $(workloadNetworkResourceGroupName) Resource Group
+  inputs:
+    azureSubscription: $(azureServiceConnection)
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      az --version
+      az account set --subscription $(workloadSub)
+      az group create --name $(workloadNetworkResourceGroupName) --location $(location)
+
+- task: AzureCLI@2
+  displayName: Deploy Virtual Network
+  inputs:
+    azureSubscription: $(azureServiceConnection)
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      az account set --subscription $(workloadSub)
+      az deployment group create --resource-group $(workloadNetworkResourceGroupName) --template-file ./platform/spoke1-network.bicep
+
+- task: AzureCLI@2
+  displayName: Deploy Hub Peering
+  inputs:
+    azureSubscription: $(azureServiceConnection)
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      az account set --subscription $(hubSub)
+      az deployment group create --resource-group $(hubNetworkResourceGroupName) --template-file ./platform/spoke1-hubpeering.bicep
+
+- task: AzureCLI@2
+  displayName: Deploy Hub Routing
+  inputs:
+    azureSubscription: $(azureServiceConnection)
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      az account set --subscription $(hubSub)
+      az deployment group create --resource-group $(hubNetworkResourceGroupName) --template-file ./platform/spoke1-hubrouting.bicep
+
+- task: AzureCLI@2
+  displayName: Deploy Hub Firewall Rules
+  inputs:
+    azureSubscription: $(azureServiceConnection)
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      az account set --subscription $(hubSub)
+      az deployment group create --resource-group $(hubNetworkResourceGroupName) --template-file ./platform/spoke1-hubfirewall.bicep
