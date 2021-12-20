@@ -1,0 +1,17 @@
+{
+  "Name": "CUSTOM - ARM Deployment Operator",
+  "IsCustom": true,
+  "Description": "Validate action on ARM deployments.",
+  "Actions": [
+    "Microsoft.Resources/deployments/validate/action",
+    "Microsoft.Resources/deployments/read",
+    "Microsoft.Resources/deployments/write",
+    "Microsoft.Resources/deployments/operationStatuses/read"
+  ],
+  "NotActions": [],
+  "DataActions": [],
+  "NotDataActions": [],
+  "AssignableScopes": [
+    "/subscriptions/de1b9349-a302-4b0f-98fb-2e6adc5b2d68"
+  ]
+}

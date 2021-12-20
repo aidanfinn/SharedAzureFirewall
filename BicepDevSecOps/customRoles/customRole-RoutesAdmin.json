@@ -1,0 +1,16 @@
+{
+  "Name": "CUSTOM - Azure Route Table Routes Administrator",
+  "IsCustom": true,
+  "Description": "Read, write and delete Azure Route Table Routes.",
+  "Actions": [
+    "Microsoft.Network/routeTables/routes/read",
+    "Microsoft.Network/routeTables/routes/write",
+    "Microsoft.Network/routeTables/routes/delete"
+  ],
+  "NotActions": [],
+  "DataActions": [],
+  "NotDataActions": [],
+  "AssignableScopes": [
+    "/subscriptions/de1b9349-a302-4b0f-98fb-2e6adc5b2d68"
+  ]
+}

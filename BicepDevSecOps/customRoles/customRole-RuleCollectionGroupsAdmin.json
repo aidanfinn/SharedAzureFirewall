@@ -1,0 +1,16 @@
+{
+  "Name": "CUSTOM - Azure Firewall Policy Rule Collection Group Administrator",
+  "IsCustom": true,
+  "Description": "Read, write and delete Azure Firewall Policy Rule Collection Groups.",
+  "Actions": [
+    "Microsoft.Network/firewallPolicies/ruleCollectionGroups/read",
+    "Microsoft.Network/firewallPolicies/ruleCollectionGroups/write",
+    "Microsoft.Network/firewallPolicies/ruleCollectionGroups/delete"
+  ],
+  "NotActions": [],
+  "DataActions": [],
+  "NotDataActions": [],
+  "AssignableScopes": [
+    "/subscriptions/de1b9349-a302-4b0f-98fb-2e6adc5b2d68"
+  ]
+}
