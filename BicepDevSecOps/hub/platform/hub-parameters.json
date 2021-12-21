@@ -1,0 +1,113 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualNetworkAddressPrefixes": {
+      "value": [
+        "10.0.0.0/22"
+      ]
+    },
+    "virtualNetworkGatewaySubnetAddressPrefix": {
+      "value": "10.0.0.0/24"
+    },
+    "virtualNetworkAzureFirewallSubnetAddressPrefix": {
+      "value": "10.0.1.0/24"
+    },
+    "virtualNetworkAzureBastionSubnetAddressPrefix": {
+      "value": "10.0.3.0/24"
+    },
+    "firewallPolicyProperties": {
+      "value": {
+        "threatIntelMode": "Deny",
+        "dnsSettings": {
+          "enableProxy": true
+        }
+      }
+    },
+    "globalRulesCollectionProperties": {
+      "value": {
+        "priority": 100,
+        "ruleCollections": [
+          {
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "name": "Allow-Network-Rules",
+            "priority": 400,
+            "action": {
+              "type": "Allow"
+            },
+            "rules": [
+              {
+                "ruleType": "NetworkRule",
+                "name": "Azure-KMS-Service",
+                "description": "Allow traffic from all Address Spaces to Azure platform KMS Service",
+                "sourceAddresses": [
+                  "*"
+                ],
+                "sourceIpGroups": [],
+                "ipProtocols": [
+                  "TCP"
+                ],
+                "destinationPorts": [
+                  "1688"
+                ],
+                "destinationIpGroups": [],
+                "destinationAddresses": [],
+                "destinationFqdns": [
+                  "kms.core.windows.net"
+                ]
+              }
+            ]
+          },
+          {
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "name": "Allow-Application-Rules",
+            "priority": 600,
+            "action": {
+              "type": "Allow"
+            },
+            "rules": [
+              {
+                "ruleType": "ApplicationRule",
+                "name": "Http",
+                "description": "Allow traffic from all sources to Azure platform KMS Service",
+                "sourceAddresses": [
+                  "*"
+                ],
+                "sourceIpGroups": [],
+                "protocols": [
+                  {
+                    "protocolType": "Http",
+                    "port": 80
+                  }
+                ],
+                "targetFqdns": [],
+                "fqdnTags": [
+                  "WindowsUpdate"
+                ]
+              },
+              {
+                "ruleType": "ApplicationRule",
+                "name": "Https",
+                "description": "Allow traffic from all sources to Azure platform KMS Service",
+                "sourceAddresses": [
+                  "*"
+                ],
+                "sourceIpGroups": [],
+                "protocols": [
+                  {
+                    "protocolType": "Https",
+                    "port": 443
+                  }
+                ],
+                "targetFqdns": [],
+                "fqdnTags": [
+                  "WindowsUpdate"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

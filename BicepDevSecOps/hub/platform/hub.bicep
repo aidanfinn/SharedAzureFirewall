@@ -1,17 +1,44 @@
+////////////////
+// Parameters //
+////////////////
+
+// Address prefix for virtualNetwork
+param virtualNetworkAddressPrefixes array
+
+// Address prefix for virtualNetwork - GatewaySubnet
+param virtualNetworkGatewaySubnetAddressPrefix string
+
+// Address prefix for virtualNetwork - AzureFirewallSubnet
+param virtualNetworkAzureFirewallSubnetAddressPrefix string
+
+// Address prefix for virtualNetwork - AzureBastionSubnet
+param virtualNetworkAzureBastionSubnetAddressPrefix string
+
+// Properties of Azure Firewall Policy
+param firewallPolicyProperties object
+
+// Properties of Global Rule Collection Group
+param globalRulesCollectionProperties object
+
+
+////////////////
+// Resources //
+////////////////
+
+// Hub Virtual Network //
+
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
   name: 'hub-vnet'
   location: resourceGroup().location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        '10.0.0.0/22'
-      ]
+      addressPrefixes: virtualNetworkAddressPrefixes
     }
     subnets: [
       {
         name: 'GatewaySubnet'
         properties: {
-          addressPrefix: '10.0.0.0/24'
+          addressPrefix: virtualNetworkGatewaySubnetAddressPrefix
           routeTable: {
             id: '${gatewaySubnetRouteTable.id}'
           }
@@ -20,18 +47,21 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
       {
         name: 'AzureFirewallSubnet'
         properties: {
-          addressPrefix: '10.0.1.0/24'
+          addressPrefix: virtualNetworkAzureFirewallSubnetAddressPrefix
         }
       }
       {
         name: 'AzureBastionSubnet'
         properties: {
-          addressPrefix: '10.0.3.0/24'
+          addressPrefix: virtualNetworkAzureBastionSubnetAddressPrefix
         }
       }
     ]
   }
 }
+
+
+// GatwaySubnet Route Table //
 
 resource gatewaySubnetRouteTable 'Microsoft.Network/routeTables@2019-11-01' = {
   name: 'hub-vnet-gatewaysubnet-rt'
@@ -40,6 +70,9 @@ resource gatewaySubnetRouteTable 'Microsoft.Network/routeTables@2019-11-01' = {
     disableBgpRoutePropagation: false
   }
 }
+
+
+// VNet VPN Gatway PIP //
 
 resource virtualNetworkGatewayPip 'Microsoft.Network/publicIPAddresses@2020-03-01' = {
   name: 'hub-vpn-pip001'
@@ -51,6 +84,9 @@ resource virtualNetworkGatewayPip 'Microsoft.Network/publicIPAddresses@2020-03-0
     name: 'Basic'
   }
 }
+
+
+// VNet VPN Gateway //
 
 resource vpnVirtualNetworkGateway 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {
   name: 'hub-vpn'
@@ -81,7 +117,7 @@ resource vpnVirtualNetworkGateway 'Microsoft.Network/virtualNetworkGateways@2020
 }
 
 
-
+// Azure Firewall PIP //
 
 resource firewallPip 'Microsoft.Network/publicIPAddresses@2020-03-01' = {
   name: 'hub-afw-pip001'
@@ -94,16 +130,17 @@ resource firewallPip 'Microsoft.Network/publicIPAddresses@2020-03-01' = {
   }
 }
 
+
+// Azure Firewall Policy //
+
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-03-01' = {
   name: 'hub-fw-afwp'
   location: resourceGroup().location
-  properties: {
-    threatIntelMode: 'Deny'
-    dnsSettings: {
-      enableProxy: true
-    }
-  }
+  properties: firewallPolicyProperties
 }
+
+
+// Azure Firewall //
 
 resource firewall 'Microsoft.Network/azureFirewalls@2020-11-01' = {
   name: 'hub-afw'
@@ -128,89 +165,21 @@ resource firewall 'Microsoft.Network/azureFirewalls@2020-11-01' = {
   }
 }
 
+
+// Global Rule Collection Group //
+
 resource globalRulesCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2021-03-01' = {
   name: '${firewallPolicy.name}/global'
-  properties: {
-    priority: 100
-    ruleCollections: [
-      {
-        ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-        name: 'Allow-Network-Rules'
-        priority: 400
-        action: {
-          type: 'Allow'
-        }
-        rules: [
-          {
-            ruleType: 'NetworkRule'
-            name: 'Azure-KMS-Service'
-            description: 'Allow traffic from all Address Spaces to Azure platform KMS Service'
-            sourceAddresses: [
-              '*'
-            ]
-            sourceIpGroups: []
-            ipProtocols: [
-              'TCP'
-            ]
-            destinationPorts: [
-              '1688'
-            ]
-            destinationIpGroups: []
-            destinationAddresses: []
-            destinationFqdns: [
-              'kms.core.windows.net'
-            ]
-          }
-        ]
-      }
-      {
-        ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-        name: 'Allow-Application-Rules'
-        priority: 600
-        action: {
-          type: 'Allow'
-        }
-        rules: [
-          {
-            ruleType: 'ApplicationRule'
-            name: 'Http'
-            description: 'Allow traffic from all sources to Azure platform KMS Service'
-            sourceAddresses: [
-              '*'
-            ]
-            sourceIpGroups: []
-            protocols: [
-              {
-                protocolType: 'Http'
-                port: 80
-              }
-            ]
-            targetFqdns: []
-            fqdnTags: [
-              'WindowsUpdate'
-            ]
-          }
-          {
-            ruleType: 'ApplicationRule'
-            name: 'Https'
-            description: 'Allow traffic from all sources to Azure platform KMS Service'
-            sourceAddresses: [
-              '*'
-            ]
-            sourceIpGroups: []
-            protocols: [
-              {
-                protocolType: 'Https'
-                port: 443
-              }
-            ]
-            targetFqdns: []
-            fqdnTags: [
-              'WindowsUpdate'
-            ]
-          }
-        ]
-      }
-    ]
-  }
+  properties: globalRulesCollectionProperties
 }
+
+
+/////////////
+// Outputs //
+/////////////
+
+// Hub VNet ID
+output virtualNetworkId string = virtualNetwork.id
+
+// Firewall Private IP
+output firewallPrivateIp string = firewall.properties.ipConfigurations[0].properties.privateIPAddress

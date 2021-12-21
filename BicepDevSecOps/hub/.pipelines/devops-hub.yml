@@ -16,6 +16,7 @@ variables:
   resourceGroupName: 'hub-network'
   location: 'westeurope'
   templateFile: './platform/hub.bicep'
+  templateParameterFile: './platform/hub-parameters.json'
 pool:
   vmImage: $(vmImageName)
 
@@ -28,4 +29,4 @@ steps:
     inlineScript: |
       az --version
       az group create --name $(resourceGroupName) --location $(location)
-      az deployment group create --resource-group $(resourceGroupName) --template-file $(templateFile)
+      az deployment group create --resource-group $(resourceGroupName) --template-file $(templateFile) --parameters $(templateParameterFile)
