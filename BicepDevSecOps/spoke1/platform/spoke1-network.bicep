@@ -68,6 +68,10 @@ resource frontendSubnetNsg 'Microsoft.Network/networkSecurityGroups@2019-11-01' 
   }
 }
 
+resource hubNetwork 'Microsoft.Network/virtualNetworks@2021-05-01' existing = {
+  name: 'hub-vnet'
+  scope: resourceGroup('hub-network')
+}
 
 resource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {
   name: 'spoke1-vnet/hub-vnet'
@@ -80,7 +84,7 @@ resource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-
     allowGatewayTransit: true
     useRemoteGateways: true
     remoteVirtualNetwork: {
-      id: '/subscriptions/hubSubscriptionId/resourceGroups/hub-network/providers/Microsoft.Network/virtualNetworks/hub-vnet'
+      id: hubNetwork.id
     }
   }
 }
