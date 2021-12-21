@@ -80,7 +80,7 @@ resource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-
     allowGatewayTransit: true
     useRemoteGateways: true
     remoteVirtualNetwork: {
-      id: '/subscriptions/de1b9349-a302-4b0f-98fb-2e6adc5b2d68/resourceGroups/hub-network/providers/Microsoft.Network/virtualNetworks/hub-vnet'
+      id: '/subscriptions/hubSubscriptionId/resourceGroups/hub-network/providers/Microsoft.Network/virtualNetworks/hub-vnet'
     }
   }
 }

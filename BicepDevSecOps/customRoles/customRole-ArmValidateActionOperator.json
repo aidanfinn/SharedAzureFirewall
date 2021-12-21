@@ -12,6 +12,6 @@
   "DataActions": [],
   "NotDataActions": [],
   "AssignableScopes": [
-    "/subscriptions/de1b9349-a302-4b0f-98fb-2e6adc5b2d68"
+    "/subscriptions/hubSubscriptionId"
   ]
 }

@@ -11,8 +11,8 @@ name: Deploy Spoke1
 
 variables:
   vmImageName: 'ubuntu-latest'
-  hubSub: 'de1b9349-a302-4b0f-98fb-2e6adc5b2d68'
-  workloadSub: '6fd7f490-4be8-41e2-bbdc-7f52d1d7162c'
+  hubSub: 'hubSubscriptionId'
+  workloadSub: 'workloadSubscriptionId'
   workloadResourceGroupName: 'spoke1'
   workloadNetworkResourceGroupName: 'spoke1-network'
   hubNetworkResourceGroupName: 'hub-network'
