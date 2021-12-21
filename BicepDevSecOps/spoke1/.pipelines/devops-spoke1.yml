@@ -41,7 +41,7 @@ steps:
     scriptLocation: inlineScript
     inlineScript: |
       az account set --subscription $(workloadSub)
-      az deployment group create --resource-group $(workloadNetworkResourceGroupName) --template-file ./platform/spoke1-network.bicep
+      az deployment group create --resource-group $(workloadNetworkResourceGroupName) --template-file ./platform/spoke1-network.bicep --parameters hubSubscriptionId=$(hubSub)
 
 - task: AzureCLI@2
   displayName: Deploy Hub Peering

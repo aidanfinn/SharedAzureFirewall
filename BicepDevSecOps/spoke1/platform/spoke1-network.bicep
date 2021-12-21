@@ -1,3 +1,5 @@
+param hubSubscriptionId string
+
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
   name: 'spoke1-vnet'
   location: resourceGroup().location
@@ -70,7 +72,7 @@ resource frontendSubnetNsg 'Microsoft.Network/networkSecurityGroups@2019-11-01' 
 
 resource hubNetwork 'Microsoft.Network/virtualNetworks@2021-05-01' existing = {
   name: 'hub-vnet'
-  scope: resourceGroup('hub-network')
+  scope: resourceGroup(hubSubscriptionId, 'hub-network')
 }
 
 resource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {
