@@ -1,0 +1,16 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workloadGatewaySubnetRouteName": {
+      "value": "hub-vnet-gatewaysubnet-rt/spoke1-vnet"
+    },
+    "workloadGatewaySubnetRoute": {
+      "value": {
+        "addressPrefix": "10.0.8.0/25",
+        "nextHopIpAddress": "10.0.1.4",
+        "nextHopType": "VirtualAppliance"
+      }
+    }
+  }
+}

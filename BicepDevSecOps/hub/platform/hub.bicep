@@ -146,6 +146,10 @@ resource firewall 'Microsoft.Network/azureFirewalls@2020-11-01' = {
   name: 'hub-afw'
   location: resourceGroup().location
   properties: {
+    sku: {
+      name: 'AZFW_VNet'
+      tier: 'Standard'
+    }
     ipConfigurations: [
       {
         name: 'hub-fw-pip001'

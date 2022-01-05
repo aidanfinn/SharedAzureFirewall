@@ -7,68 +7,90 @@ trigger:
    include:
      - platform/*
 
-name: Deploy Spoke1
+name: Deploy Workload 1
 
 variables:
   vmImageName: 'ubuntu-latest'
-  hubSub: 'hubSubscriptionId'
-  workloadSub: 'workloadSubscriptionId'
-  workloadResourceGroupName: 'spoke1'
-  workloadNetworkResourceGroupName: 'spoke1-network'
-  hubNetworkResourceGroupName: 'hub-network'
+
   azureServiceConnection: 'spoke1'
   location: 'westeurope'
+
+  workloadSub: '6fd7f490-4be8-41e2-bbdc-7f52d1d7162c'
+  workloadNetworkResourceGroupName: 'spoke1-network'
+  workloadResourceGroupName: 'spoke1'
+
+  hubSub: 'de1b9349-a302-4b0f-98fb-2e6adc5b2d68'
+  hubNetworkResourceGroupName: 'hub-network'
+
 pool:
   vmImage: $(vmImageName)
 
 steps:
-- task: AzureCLI@2
-  displayName: Create $(workloadNetworkResourceGroupName) Resource Group
-  inputs:
-    azureSubscription: $(azureServiceConnection)
-    scriptType: bash
-    scriptLocation: inlineScript
-    inlineScript: |
-      az --version
-      az account set --subscription $(workloadSub)
-      az group create --name $(workloadNetworkResourceGroupName) --location $(location)
 
-- task: AzureCLI@2
-  displayName: Deploy Virtual Network
-  inputs:
-    azureSubscription: $(azureServiceConnection)
-    scriptType: bash
-    scriptLocation: inlineScript
-    inlineScript: |
-      az account set --subscription $(workloadSub)
-      az deployment group create --resource-group $(workloadNetworkResourceGroupName) --template-file ./platform/spoke1-network.bicep
+# Deploy Virtual Network
 
-- task: AzureCLI@2
-  displayName: Deploy Hub Peering
+- task: AzurePowerShell@5
   inputs:
     azureSubscription: $(azureServiceConnection)
-    scriptType: bash
-    scriptLocation: inlineScript
-    inlineScript: |
-      az account set --subscription $(hubSub)
-      az deployment group create --resource-group $(hubNetworkResourceGroupName) --template-file ./platform/spoke1-hubpeering.bicep
+    ScriptType: 'FilePath'
+    ScriptPath: $(System.DefaultWorkingDirectory)/.pipelines/deploy.ps1
+    ScriptArguments: > # Use this to avoid newline characters in multiline string
+      -subscriptionId $(workloadSub)
+      -resourceGroupName $(workloadNetworkResourceGroupName)
+      -location $(location)
+      -deployment "spoke1-network"
+      -templateFile $(System.DefaultWorkingDirectory)"/platform/spoke1-network.bicep"
+      -templateParameterFile $(System.DefaultWorkingDirectory)"/platform/spoke1-network-parameters.json"
+    azurePowerShellVersion: 'LatestVersion'
+  displayName: 'Deploy Virtual Network'
 
-- task: AzureCLI@2
-  displayName: Deploy Hub Routing
-  inputs:
-    azureSubscription: $(azureServiceConnection)
-    scriptType: bash
-    scriptLocation: inlineScript
-    inlineScript: |
-      az account set --subscription $(hubSub)
-      az deployment group create --resource-group $(hubNetworkResourceGroupName) --template-file ./platform/spoke1-hubrouting.bicep
+# Deploy Hub Firewall Rules
 
-- task: AzureCLI@2
-  displayName: Deploy Hub Firewall Rules
+- task: AzurePowerShell@5
   inputs:
     azureSubscription: $(azureServiceConnection)
-    scriptType: bash
-    scriptLocation: inlineScript
-    inlineScript: |
-      az account set --subscription $(hubSub)
-      az deployment group create --resource-group $(hubNetworkResourceGroupName) --template-file ./platform/spoke1-hubfirewall.bicep
+    ScriptType: 'FilePath'
+    ScriptPath: $(System.DefaultWorkingDirectory)/.pipelines/deploy.ps1
+    ScriptArguments: > # Use this to avoid newline characters in multiline string
+      -subscriptionId $(hubSub)
+      -resourceGroupName $(hubNetworkResourceGroupName)
+      -location $(location)
+      -deployment "spoke1-hubfirewall"
+      -templateFile $(System.DefaultWorkingDirectory)"/platform/spoke1-hubfirewall.bicep"
+      -templateParameterFile $(System.DefaultWorkingDirectory)"/platform/spoke1-hubfirewall-parameters.json"
+    azurePowerShellVersion: 'LatestVersion'
+  displayName: 'Deploy Hub Firewall Rules'
+
+# Deploy Hub Routing
+
+- task: AzurePowerShell@5
+  inputs:
+    azureSubscription: $(azureServiceConnection)
+    ScriptType: 'FilePath'
+    ScriptPath: $(System.DefaultWorkingDirectory)/.pipelines/deploy.ps1
+    ScriptArguments: > # Use this to avoid newline characters in multiline string
+      -subscriptionId $(hubSub)
+      -resourceGroupName $(hubNetworkResourceGroupName)
+      -location $(location)
+      -deployment "spoke1-hubrouting"
+      -templateFile $(System.DefaultWorkingDirectory)"/platform/spoke1-hubrouting.bicep"
+      -templateParameterFile $(System.DefaultWorkingDirectory)"/platform/spoke1-hubrouting-parameters.json"
+    azurePowerShellVersion: 'LatestVersion'
+  displayName: 'Deploy Hub Routing'
+
+# Deploy Hub Peering
+
+- task: AzurePowerShell@5
+  inputs:
+    azureSubscription: $(azureServiceConnection)
+    ScriptType: 'FilePath'
+    ScriptPath: $(System.DefaultWorkingDirectory)/.pipelines/deploy.ps1
+    ScriptArguments: > # Use this to avoid newline characters in multiline string
+      -subscriptionId $(hubSub)
+      -resourceGroupName $(hubNetworkResourceGroupName)
+      -location $(location)
+      -deployment "spoke1-hubpeering"
+      -templateFile $(System.DefaultWorkingDirectory)"/platform/spoke1-hubpeering.bicep"
+      -templateParameterFile $(System.DefaultWorkingDirectory)"/platform/spoke1-hubpeering-parameters.json"
+    azurePowerShellVersion: 'LatestVersion'
+  displayName: 'Deploy Hub Peering'

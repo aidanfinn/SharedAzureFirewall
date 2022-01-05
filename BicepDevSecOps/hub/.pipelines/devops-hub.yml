@@ -13,20 +13,29 @@ variables:
   vmImageName: 'ubuntu-latest'
 
   azureServiceConnection: 'hub'
-  resourceGroupName: 'hub-network'
   location: 'westeurope'
-  templateFile: './platform/hub.bicep'
-  templateParameterFile: './platform/hub-parameters.json'
+
+  hubSub: 'de1b9349-a302-4b0f-98fb-2e6adc5b2d68'
+  hubNetworkResourceGroupName: 'hub-network'
+
 pool:
   vmImage: $(vmImageName)
 
 steps:
-- task: AzureCLI@2
+
+# Deploy Hub
+
+- task: AzurePowerShell@5
   inputs:
     azureSubscription: $(azureServiceConnection)
-    scriptType: bash
-    scriptLocation: inlineScript
-    inlineScript: |
-      az --version
-      az group create --name $(resourceGroupName) --location $(location)
-      az deployment group create --resource-group $(resourceGroupName) --template-file $(templateFile) --parameters $(templateParameterFile)
+    ScriptType: 'FilePath'
+    ScriptPath: $(System.DefaultWorkingDirectory)/.pipelines/deploy.ps1
+    ScriptArguments: > # Use this to avoid newline characters in multiline string
+      -subscriptionId $(hubSub)
+      -resourceGroupName $(hubNetworkResourceGroupName)
+      -location $(location)
+      -deployment "hub"
+      -templateFile $(System.DefaultWorkingDirectory)"/platform/hub.bicep"
+      -templateParameterFile $(System.DefaultWorkingDirectory)"/platform/hub-parameters.json"
+    azurePowerShellVersion: 'LatestVersion'
+  displayName: 'Deploy Hub'

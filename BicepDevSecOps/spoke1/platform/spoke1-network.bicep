@@ -1,17 +1,41 @@
+////////////////
+// Parameters //
+////////////////
+
+// Address prefix for virtualNetwork
+param virtualNetworkAddressPrefixes array
+
+// Address prefix for virtualNetwork - FrontendSubnet
+param virtualFrontendSubnetAddressPrefix string
+
+// NSG rules for virtualNetwork - FrontendSubnet
+param virtualFrontendSubnetNsgRules array
+
+// Route Table rules for virtualNetwork - FrontendSubnet
+param virtualFrontendSubnetRoutes array
+
+// Resource ID of the hub Virtual Network
+param hubVirtualNetworkId string
+
+
+///////////////
+// Resources //
+///////////////
+
+// Workload Virtual Network //
+
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
   name: 'spoke1-vnet'
   location: resourceGroup().location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        '10.0.8.0/25'
-      ]
+      addressPrefixes: virtualNetworkAddressPrefixes
     }
     subnets: [
       {
         name: 'FrontendSubnet'
         properties: {
-          addressPrefix: '10.0.8.0/27'
+          addressPrefix: virtualFrontendSubnetAddressPrefix
           routeTable: {
             id: '${frontendSubnetRouteTable.id}'
           }
@@ -30,17 +54,7 @@ resource frontendSubnetRouteTable 'Microsoft.Network/routeTables@2019-11-01' = {
   location: resourceGroup().location
   properties: {
     disableBgpRoutePropagation: true
-  }
-}
-
-
-resource route 'Microsoft.Network/routeTables/routes@2021-03-01' = {
-  name: 'Everywhere'
-  parent: frontendSubnetRouteTable
-  properties: {
-    addressPrefix: '0.0.0.0/0'
-    nextHopIpAddress: '10.0.1.4'
-    nextHopType: 'VirtualAppliance'
+    routes: virtualFrontendSubnetRoutes
   }
 }
 
@@ -49,22 +63,7 @@ resource frontendSubnetNsg 'Microsoft.Network/networkSecurityGroups@2019-11-01' 
   name: 'spoke1-vnet-frontendsubnet-nsg'
   location: resourceGroup().location
   properties: {
-    securityRules: [
-      {
-        name: 'AllowHttpsFromOnPrem'
-        properties: {
-          description: 'Allow HTTPS from an on-premises network'
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          destinationPortRange: '443'
-          sourceAddressPrefix: '192.168.0.0/16'
-          destinationAddressPrefix: '10.0.8.0/25'
-          access: 'Allow'
-          priority: 1000
-          direction: 'Inbound'
-        }
-      }
-    ]
+    securityRules: virtualFrontendSubnetNsgRules
   }
 }
 
@@ -80,7 +79,7 @@ resource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-
     allowGatewayTransit: true
     useRemoteGateways: true
     remoteVirtualNetwork: {
-      id: '/subscriptions/hubSubscriptionId/resourceGroups/hub-network/providers/Microsoft.Network/virtualNetworks/hub-vnet'
+      id: hubVirtualNetworkId
     }
   }
 }

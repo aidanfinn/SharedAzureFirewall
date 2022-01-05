@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualNetworkAddressPrefixes": {
+      "value": [
+        "10.0.8.0/25"
+      ]
+    },
+    "virtualFrontendSubnetAddressPrefix": {
+      "value": "10.0.8.0/27"
+    },
+    "virtualFrontendSubnetNsgRules": {
+      "value": [
+        {
+          "name": "AllowHttpsFromOnPrem",
+          "properties": {
+            "description": "Allow HTTPS from an on-premises network",
+            "protocol": "Tcp",
+            "sourcePortRange": "*",
+            "destinationPortRange": "443",
+            "sourceAddressPrefix": "192.168.0.0/16",
+            "destinationAddressPrefix": "10.0.8.0/25",
+            "access": "Allow",
+            "priority": 1000,
+            "direction": "Inbound"
+          }
+        }
+      ]
+    },
+    "virtualFrontendSubnetRoutes": {
+      "value": [
+        {
+          "name": "Everywhere",
+          "properties": {
+            "addressPrefix": "0.0.0.0/0",
+            "nextHopIpAddress": "10.0.1.4",
+            "nextHopType": "VirtualAppliance"
+          }
+        }
+      ]
+    },
+    "hubVirtualNetworkId": {
+      "value": "/subscriptions/de1b9349-a302-4b0f-98fb-2e6adc5b2d68/resourceGroups/hub-network/providers/Microsoft.Network/virtualNetworks/hub-vnet"
+    }
+  }
+}

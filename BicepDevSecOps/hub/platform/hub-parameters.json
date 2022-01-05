@@ -18,6 +18,9 @@
     },
     "firewallPolicyProperties": {
       "value": {
+        "sku": {
+          "tier": "Standard"
+        },
         "threatIntelMode": "Deny",
         "dnsSettings": {
           "enableProxy": true
@@ -83,7 +86,8 @@
                 "targetFqdns": [],
                 "fqdnTags": [
                   "WindowsUpdate"
-                ]
+                ],
+                "terminateTLS": false
               },
               {
                 "ruleType": "ApplicationRule",
@@ -102,8 +106,8 @@
                 "targetFqdns": [],
                 "fqdnTags": [
                   "WindowsUpdate"
-                ]
-              }
+                ],
+                "terminateTLS": false              }
             ]
           }
         ]
