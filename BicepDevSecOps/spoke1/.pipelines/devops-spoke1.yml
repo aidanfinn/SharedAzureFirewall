@@ -15,11 +15,11 @@ variables:
   azureServiceConnection: 'spoke1'
   location: 'westeurope'
 
-  workloadSub: '6fd7f490-4be8-41e2-bbdc-7f52d1d7162c'
+  workloadSub: '<workloadSubId>'
   workloadNetworkResourceGroupName: 'spoke1-network'
   workloadResourceGroupName: 'spoke1'
 
-  hubSub: 'de1b9349-a302-4b0f-98fb-2e6adc5b2d68'
+  hubSub: '<hubSubId>'
   hubNetworkResourceGroupName: 'hub-network'
 
 pool:
