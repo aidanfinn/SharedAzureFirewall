@@ -72,7 +72,7 @@
               {
                 "ruleType": "ApplicationRule",
                 "name": "Http",
-                "description": "Allow traffic from all sources to Azure platform KMS Service",
+                "description": "Allow HTTP traffic from all sources to Windows Update",
                 "sourceAddresses": [
                   "*"
                 ],
@@ -92,7 +92,7 @@
               {
                 "ruleType": "ApplicationRule",
                 "name": "Https",
-                "description": "Allow traffic from all sources to Azure platform KMS Service",
+                "description": "Allow HTTPS traffic from all sources to Windows Update",
                 "sourceAddresses": [
                   "*"
                 ],

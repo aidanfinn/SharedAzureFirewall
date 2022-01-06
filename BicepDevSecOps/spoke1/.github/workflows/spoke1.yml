@@ -1,0 +1,79 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Deploy Spoke 1
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  vmImageName: 'ubuntu-latest'
+
+  location: 'westeurope'
+
+  workloadSub: '6fd7f490-4be8-41e2-bbdc-7f52d1d7162c'
+  workloadNetworkResourceGroupName: 'spoke1-network'
+  workloadResourceGroupName: 'spoke1'
+
+  hubSub: 'de1b9349-a302-4b0f-98fb-2e6adc5b2d68'
+  hubNetworkResourceGroupName: 'hub-network'
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    # Use Ubuntu container to execute the action
+    runs-on: ubuntu-latest
+  
+    steps:
+
+      # Checkout code from repo
+      - name: Checkout code from repo
+        uses: actions/checkout@master
+        
+      # Login to azure account with service principal from secrets
+      - name: Login via Az module
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+          enable-AzPSSession: true 
+ 
+      # Deploy Virtual Network
+      - name: Deploy Virtual Network
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            .\scripts\deploy.ps1 -subscriptionId "${{env.workloadSub}}" -resourceGroupName "${{env.workloadNetworkResourceGroupName}}" -location "${{env.location}}" -deployment "spoke1-network" -templateFile './platform/spoke1-network.bicep' -templateParameterFile './platform/spoke1-network-parameters.json'
+          azPSVersion: "latest"
+ 
+      # Deploy Hub Firewall Rules
+      - name: Deploy Hub Firewall Rules
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            .\scripts\deploy.ps1 -subscriptionId "${{env.hubSub}}" -resourceGroupName "${{env.hubNetworkResourceGroupName}}" -location "${{env.location}}" -deployment "spoke1-hubfirewall" -templateFile './platform/spoke1-hubfirewall.bicep' -templateParameterFile './platform/spoke1-hubfirewall-parameters.json'
+          azPSVersion: "latest"
+ 
+      # Deploy Hub Routing
+      - name: Deploy Hub Routing
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            .\scripts\deploy.ps1 -subscriptionId "${{env.hubSub}}" -resourceGroupName "${{env.hubNetworkResourceGroupName}}" -location "${{env.location}}" -deployment "spoke1-hubrouting" -templateFile './platform/spoke1-hubrouting.bicep' -templateParameterFile './platform/spoke1-hubrouting-parameters.json'
+          azPSVersion: "latest"
+ 
+      # Deploy Hub Peering
+      - name: Deploy Hub Peering
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            .\scripts\deploy.ps1 -subscriptionId "${{env.hubSub}}" -resourceGroupName "${{env.hubNetworkResourceGroupName}}" -location "${{env.location}}" -deployment "spoke1-hubpeering" -templateFile './platform/spoke1-hubpeering.bicep' -templateParameterFile './platform/spoke1-hubpeering-parameters.json'
+          azPSVersion: "latest"
+

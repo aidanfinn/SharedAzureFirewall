@@ -15,7 +15,7 @@ variables:
   azureServiceConnection: 'hub'
   location: 'westeurope'
 
-  hubSub: '<hubSubId>'
+  hubSub: 'de1b9349-a302-4b0f-98fb-2e6adc5b2d68'
   hubNetworkResourceGroupName: 'hub-network'
 
 pool:
@@ -29,7 +29,7 @@ steps:
   inputs:
     azureSubscription: $(azureServiceConnection)
     ScriptType: 'FilePath'
-    ScriptPath: $(System.DefaultWorkingDirectory)/.pipelines/deploy.ps1
+    ScriptPath: $(System.DefaultWorkingDirectory)/scripts/deploy.ps1
     ScriptArguments: > # Use this to avoid newline characters in multiline string
       -subscriptionId $(hubSub)
       -resourceGroupName $(hubNetworkResourceGroupName)

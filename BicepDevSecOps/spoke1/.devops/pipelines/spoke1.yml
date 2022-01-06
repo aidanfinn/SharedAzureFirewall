@@ -15,11 +15,11 @@ variables:
   azureServiceConnection: 'spoke1'
   location: 'westeurope'
 
-  workloadSub: '<workloadSubId>'
+  workloadSub: '6fd7f490-4be8-41e2-bbdc-7f52d1d7162c'
   workloadNetworkResourceGroupName: 'spoke1-network'
   workloadResourceGroupName: 'spoke1'
 
-  hubSub: '<hubSubId>'
+  hubSub: 'de1b9349-a302-4b0f-98fb-2e6adc5b2d68'
   hubNetworkResourceGroupName: 'hub-network'
 
 pool:
@@ -33,7 +33,7 @@ steps:
   inputs:
     azureSubscription: $(azureServiceConnection)
     ScriptType: 'FilePath'
-    ScriptPath: $(System.DefaultWorkingDirectory)/.pipelines/deploy.ps1
+    ScriptPath: $(System.DefaultWorkingDirectory)/scripts/deploy.ps1
     ScriptArguments: > # Use this to avoid newline characters in multiline string
       -subscriptionId $(workloadSub)
       -resourceGroupName $(workloadNetworkResourceGroupName)
@@ -50,7 +50,7 @@ steps:
   inputs:
     azureSubscription: $(azureServiceConnection)
     ScriptType: 'FilePath'
-    ScriptPath: $(System.DefaultWorkingDirectory)/.pipelines/deploy.ps1
+    ScriptPath: $(System.DefaultWorkingDirectory)/scripts/deploy.ps1
     ScriptArguments: > # Use this to avoid newline characters in multiline string
       -subscriptionId $(hubSub)
       -resourceGroupName $(hubNetworkResourceGroupName)
@@ -67,7 +67,7 @@ steps:
   inputs:
     azureSubscription: $(azureServiceConnection)
     ScriptType: 'FilePath'
-    ScriptPath: $(System.DefaultWorkingDirectory)/.pipelines/deploy.ps1
+    ScriptPath: $(System.DefaultWorkingDirectory)/scripts/deploy.ps1
     ScriptArguments: > # Use this to avoid newline characters in multiline string
       -subscriptionId $(hubSub)
       -resourceGroupName $(hubNetworkResourceGroupName)
@@ -84,7 +84,7 @@ steps:
   inputs:
     azureSubscription: $(azureServiceConnection)
     ScriptType: 'FilePath'
-    ScriptPath: $(System.DefaultWorkingDirectory)/.pipelines/deploy.ps1
+    ScriptPath: $(System.DefaultWorkingDirectory)/scripts/deploy.ps1
     ScriptArguments: > # Use this to avoid newline characters in multiline string
       -subscriptionId $(hubSub)
       -resourceGroupName $(hubNetworkResourceGroupName)
